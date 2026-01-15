@@ -35,6 +35,7 @@ const server = http.createServer(async (req, res) => {
         try {
             const buildingId = url.searchParams.get('building_id');
 
+
             const data = await readFileData();
             let apartments = JSON.parse(data);
 
@@ -51,10 +52,94 @@ const server = http.createServer(async (req, res) => {
             res.writeHead(500);
             return res.end('Server error');
         }
+
+
+    }
+    else if (url.pathname === '/apartments-full' && req.method === 'GET') {
+        try {
+            let limit = Number(url.searchParams.get('limit')) || 9
+            let skip = Number(url.searchParams.get('skip')) || 0
+            let rooms = url.searchParams.get('rooms')
+            let level = url.searchParams.get('level')
+            let minPriceParam = url.searchParams.get('minPrice')   // "1000000"
+            let maxPriceParam = url.searchParams.get('maxPrice')   // "3000000"
+
+            const data = await readFileData()
+            let apartments = JSON.parse(data)
+
+            let filteredApartments = apartments
+
+            filteredApartments = apartments.filter(apartment => {
+                if (!apartment.apart_data) return false
+
+                let matches = true
+
+                // Фильтр по комнатам
+                if (rooms) {
+                    const apartRooms = apartment.apart_data.rooms
+                    if (!apartRooms) return false
+
+                    const roomsLower = rooms.toLowerCase()
+                    const apartRoomsLower = apartRooms.toLowerCase()
+
+                    if (roomsLower === 'студия') {
+                        matches = matches && (apartRoomsLower === 'студия')
+                    } else {
+                        matches = matches && (Number(extractNumberRooms(apartRooms)) === Number(rooms))
+                    }
+                }
+
+                // Фильтр по уровню
+                if (level) {
+                    const apartLevel = apartment.apart_data.level
+                    if (!apartLevel) return false
+
+                    const apartLevelNumber = extractFloat(apartLevel)
+                    const filterLevelNumber = extractFloat(level)
+                    matches = matches && (apartLevelNumber === filterLevelNumber)
+                }
+
+                // 3️⃣ Фильтр по цене
+                const price = extractPrice(apartment.apart_data.price)
+                if (minPriceParam) {
+                    matches = matches && (price >= extractPrice(minPriceParam))
+                }
+                if (maxPriceParam) {
+                    matches = matches && (price <= extractPrice(maxPriceParam))
+                }
+
+                return matches
+            })
+
+            // ❗ ПАГИНАЦИЯ ТОЛЬКО ПО filteredApartments
+            const paginationApartments = filteredApartments.slice(skip, skip + limit)
+
+            const total = filteredApartments.length
+
+            let response = {
+                total,
+                skip,
+                limit,
+                totalPages: Math.ceil(total / limit),
+                apartments: paginationApartments
+            }
+
+            res.writeHead(200, { 'Content-Type': 'application/json' })
+            res.end(JSON.stringify(response))
+        }
+        catch (e) {
+            console.error(e);
+            res.writeHead(500);
+            return res.end('Server error');
+        }
+    }
+    else {
+        res.writeHead(404)
+        return res.end('Not found')
     }
 
-    res.writeHead(404);
-    res.end('Not found');
+
+
 });
 
 server.listen(PORT, () => {
@@ -64,4 +149,29 @@ server.listen(PORT, () => {
 async function readFileData() {
     const filePath = path.join(__dirname, 'files', 'mergerApartList.json');
     return await fs.readFile(filePath, 'utf8');
+}
+
+function extractNumberRooms(str) {
+    const digits = str.replace(/\D+/g, '');
+    return digits ? Number(digits) : null;
+}
+
+function extractFloat(str) {
+    const match = str.match(/\d+[.,]?\d*/); // цифры, потом точка или запятая, потом цифры (необязательно)
+    if (!match) return null;
+    return Number(match[0].replace(',', '.')); // заменяем запятую на точку для parseFloat
+}
+
+function extractPrice(str) {
+    // Убираем все пробелы
+    const cleaned = str.replace(/\s+/g, '');
+
+    // Находим первую последовательность цифр, точек или запятых
+    const match = cleaned.match(/[\d.,]+/);
+    if (!match) return null;
+
+    // Заменяем запятую на точку (для десятичных чисел)
+    const numStr = match[0].replace(',', '.');
+
+    return Number(numStr);
 }
