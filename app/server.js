@@ -69,47 +69,47 @@ const server = http.createServer(async (req, res) => {
 
             let filteredApartments = apartments
 
-            filteredApartments = apartments.filter(apartment => {
-                if (!apartment.apart_data) return false
+            // filteredApartments = apartments.filter(apartment => {
+            //     if (!apartment.apart_data) return false
 
-                let matches = true
+            //     let matches = true
 
-                // Фильтр по комнатам
-                if (rooms) {
-                    const apartRooms = apartment.apart_data.rooms
-                    if (!apartRooms) return false
+            //     // Фильтр по комнатам
+            //     if (rooms) {
+            //         const apartRooms = apartment.apart_data.rooms
+            //         if (!apartRooms) return false
 
-                    const roomsLower = rooms.toLowerCase()
-                    const apartRoomsLower = apartRooms.toLowerCase()
+            //         const roomsLower = rooms.toLowerCase()
+            //         const apartRoomsLower = apartRooms.toLowerCase()
 
-                    if (roomsLower === 'студия') {
-                        matches = matches && (apartRoomsLower === 'студия')
-                    } else {
-                        matches = matches && (Number(extractNumberRooms(apartRooms)) === Number(rooms))
-                    }
-                }
+            //         if (roomsLower === 'студия') {
+            //             matches = matches && (apartRoomsLower === 'студия')
+            //         } else {
+            //             matches = matches && (Number(extractNumberRooms(apartRooms)) === Number(rooms))
+            //         }
+            //     }
 
-                // Фильтр по уровню
-                if (level) {
-                    const apartLevel = apartment.apart_data.level
-                    if (!apartLevel) return false
+            //     // Фильтр по уровню
+            //     if (level) {
+            //         const apartLevel = apartment.apart_data.level
+            //         if (!apartLevel) return false
 
-                    const apartLevelNumber = extractFloat(apartLevel)
-                    const filterLevelNumber = extractFloat(level)
-                    matches = matches && (apartLevelNumber === filterLevelNumber)
-                }
+            //         const apartLevelNumber = extractFloat(apartLevel)
+            //         const filterLevelNumber = extractFloat(level)
+            //         matches = matches && (apartLevelNumber === filterLevelNumber)
+            //     }
 
-                // 3️⃣ Фильтр по цене
-                const price = extractPrice(apartment.apart_data.price)
-                if (minPriceParam) {
-                    matches = matches && (price >= extractPrice(minPriceParam))
-                }
-                if (maxPriceParam) {
-                    matches = matches && (price <= extractPrice(maxPriceParam))
-                }
+            //     // 3️⃣ Фильтр по цене
+            //     const price = extractPrice(apartment.apart_data.price)
+            //     if (minPriceParam) {
+            //         matches = matches && (price >= extractPrice(minPriceParam))
+            //     }
+            //     if (maxPriceParam) {
+            //         matches = matches && (price <= extractPrice(maxPriceParam))
+            //     }
 
-                return matches
-            })
+            //     return matches
+            // })
 
             // ❗ ПАГИНАЦИЯ ТОЛЬКО ПО filteredApartments
             const paginationApartments = filteredApartments.slice(skip, skip + limit)
