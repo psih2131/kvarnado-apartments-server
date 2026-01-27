@@ -60,7 +60,8 @@ const server = http.createServer(async (req, res) => {
             let limit = Number(url.searchParams.get('limit')) || 9
             let skip = Number(url.searchParams.get('skip')) || 0
             let rooms = url.searchParams.get('rooms')
-            let level = url.searchParams.get('level')
+            let minLevelParam = url.searchParams.get('minLevel')
+            let maxLevelParam = url.searchParams.get('maxLevel')
             let minPriceParam = url.searchParams.get('minPrice')   // "1000000"
             let maxPriceParam = url.searchParams.get('maxPrice')   // "3000000"
 
@@ -90,13 +91,19 @@ const server = http.createServer(async (req, res) => {
                 }
 
                 // Фильтр по уровню
-                if (level) {
+                if (minLevelParam || maxLevelParam) {
                     const apartLevel = apartment.apart_data.level
                     if (!apartLevel) return false
 
                     const apartLevelNumber = extractFloat(apartLevel)
-                    const filterLevelNumber = extractFloat(level)
-                    matches = matches && (apartLevelNumber === filterLevelNumber)
+
+                    if (minLevelParam) {
+                        matches = matches && (apartLevelNumber >= extractFloat(minLevelParam))
+                    }
+
+                    if (maxLevelParam) {
+                        matches = matches && (apartLevelNumber <= extractFloat(maxLevelParam))
+                    }
                 }
 
                 // 3️⃣ Фильтр по цене
