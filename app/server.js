@@ -10,8 +10,11 @@ const ALLOWED_ORIGINS = [
     'https://kvarnado.ru',            // боевой фронт
     'http://localhost:3000',          // локальная разработка
     'http://127.0.0.1:3000',          // локальная разработка по IP
-    'http://kvarnado-2025.test'      // тестовый локальный домен OpenServer
+    'http://kvarnado-2025.test',      // тестовый локальный домен OpenServer
+    'https://unsolacing-sharee-appointable.ngrok-free.dev',      // тестовый обшедоступный домен ngrok
+    'http://unsolacing-sharee-appointable.ngrok-free.dev'      // тестовый обшедоступный домен ngrok
 ];
+
 
 const server = http.createServer(async (req, res) => {
     const origin = req.headers.origin;
