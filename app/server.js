@@ -12,7 +12,9 @@ const ALLOWED_ORIGINS = [
     'http://127.0.0.1:3000',          // локальная разработка по IP
     'http://kvarnado-2025.test',      // тестовый локальный домен OpenServer
     'https://unsolacing-sharee-appointable.ngrok-free.dev',      // тестовый обшедоступный домен ngrok
-    'http://unsolacing-sharee-appointable.ngrok-free.dev'      // тестовый обшедоступный домен ngrok
+    'http://unsolacing-sharee-appointable.ngrok-free.dev',      // тестовый обшедоступный домен ngrok
+    'https://kvarnado.local',          // тестовый локальный домен
+    'http://kvarnado.local',  
 ];
 
 
